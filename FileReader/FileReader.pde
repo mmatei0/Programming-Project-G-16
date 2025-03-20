@@ -6,7 +6,7 @@ public class FileReader {
   
 
         //Load all lines from the file
-        String[] lines = loadStrings(fileName);
+        String[] lines = loadStrings("data\flights2k.csv");
         
         for (int rowNumber = 1; rowNumber < lines.length; rowNumber++)
         {
