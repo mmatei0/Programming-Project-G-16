@@ -45,3 +45,5 @@ public class Flight {
         this.cancelled = cancelled;
         this.diverted = diverted;
     }
+
+//ANY GETTERS OR SETTERS GO HERE
