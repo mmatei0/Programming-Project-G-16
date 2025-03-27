@@ -36,6 +36,8 @@ String xAxisTitle = "Cities";
 String middleText = "Total Flights by City"; 
 PImage newyork;
 PImage plane;
+PImage clouds;
+
 
 float planeX, planeY;
 float planeSpeed = 2;
@@ -44,18 +46,18 @@ float smoothY = 0;
 float targetY = height * 0.2;
 
 void setup() {
-  size(1280, 700);
+  size(1280, 768);
   barWidth = width / (cities.length + 2);
   textSize(12);
   plane = loadImage("plane.png");
-  newyork = loadImage("newyork.png");
+  clouds = loadImage("clouds.jpg");
   planeX = -plane.width * planeSize;
   planeY = height * 0.2;
   smoothY = planeY;
 }
 
 void draw() {
-  background(newyork);
+  background(clouds);
   
   planeX += planeSpeed;
   targetY = height * 0.2 + sin(frameCount * 0.02) * 10;
@@ -86,18 +88,18 @@ void draw() {
     rect(chartLeftMargin + i * barWidth, height - barHeight - 50, barWidth, barHeight);
 
     if (i == hoveredIndex) {
-      fill(255);
+      fill(0);
       textAlign(CENTER);
       text(cities[i] + ": " + totalFlights[i], mouseX, mouseY - 10);
     }
   }
 
-  fill(255);
+  fill(0);
   textSize(20);
   textAlign(CENTER);
   text(xAxisTitle, width / 2, height - 10); 
 
-  fill(255);
+  fill(0);
   textSize(15); 
   textAlign(CENTER, CENTER);
   text(middleText, width / 2, height / 2); 
