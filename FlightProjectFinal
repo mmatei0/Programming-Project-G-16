@@ -1,0 +1,834 @@
+import java.util.Collections;
+import java.util.Comparator;
+class FileDataReader {
+       HashMap<String, Flight> readFlights(String fileName) {
+         HashMap<String, Flight> flights = new HashMap<>();
+ 
+         // Load all lines from the file
+         String[] lines = loadStrings(fileName);
+         
+        // Limit to print first 100 lines
+             
+          if (lines == null)
+           {
+             println("Error loading file: " + fileName);
+             return flights;
+           }
+           
+          
+         for (int rowNumber = 1; rowNumber < lines.length ; rowNumber++) {
+             String[] row = lines[rowNumber].split(",");
+ 
+             // Assign CSV values to variables (handling missing values)
+             String date = row[0].isEmpty() ? "Unknown" : row[0];  
+             String airlineCarrier = row[1].isEmpty() ? "Unknown" : row[1];  
+             String flightNumber = row[2].isEmpty() ? "Unknown" : row[2];  
+             String origin = row[3].isEmpty() ? "Unknown" : row[3]; 
+             String originCity = row[4].isEmpty() ? "Unknown" : row[4];
+             String originUnusedState = row[5].isEmpty() ? "Unknown" : row[5];
+             String originState = row[6].isEmpty() ? "Unknown" : row[6];
+             String originWAC = row[7].isEmpty() ? "Unknown" : row[7];
+             String destination = row[8].isEmpty() ? "Unknown" : row[8];  
+             String destinationCity = row[9].isEmpty() ? "Unknown" : row[9];
+             String destinationUnusedState = row[10].isEmpty() ? "Unknown" : row[10];
+             String destinationState = row[11].isEmpty() ? "Unknown" : row[11];
+             String destinationWAC = row[12].isEmpty() ? "Unknown" : row[12];
+             
+             int scheduledDeparture = row[13].isEmpty() ? 0 : Integer.parseInt(row[13]);
+             int actualDeparture = row[14].isEmpty() ? 0 : Integer.parseInt(row[14]);
+             int scheduledArrival = row[15].isEmpty() ? 0 : Integer.parseInt(row[15]);
+             int actualArrival = row[16].isEmpty() ? 0 : Integer.parseInt(row[16]);
+             boolean cancelled = row[17].isEmpty() ? false : row[17].equals("1");
+             boolean diverted = row[18].isEmpty() ? false : row[18].equals("1");
+             int distance = row[19].isEmpty() ? 0 : Integer.parseInt(row[19]);
+ 
+             // Create a Flight object
+             Flight flight = new Flight(date, airlineCarrier, flightNumber, origin, originCity, originUnusedState, originState, originWAC,
+                                        destination, destinationCity, destinationUnusedState, destinationState, destinationWAC,
+                                        scheduledDeparture, actualDeparture, scheduledArrival, 
+                                        actualArrival, cancelled, diverted, distance);
+ 
+             // Store flight in HashMap (key = flight number, value = Flight object)
+             flights.put(flightNumber, flight);      
+         }
+ 
+         return flights;
+     }
+ }  
+class Button {
+    float x, y, w, h;
+    String label;
+    boolean hover = false;
+    
+    Button(float x, float y, float w, float h, String label) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.label = label;
+    }
+    
+    void display() {
+        fill(hover ? color(100, 150, 255) : color(70, 130, 180));
+        rect(x, y, w, h, 5);
+        fill(255);
+        textAlign(CENTER, CENTER);
+        textSize(16);
+        text(label, x + w/2, y + h/2);
+    }
+    
+    boolean isClicked(float mx, float my) {
+        return mx > x && mx < x + w && my > y && my < y + h;
+    }
+    
+    void checkHover(float mx, float my) {
+        hover = isClicked(mx, my);
+    }
+}  
+class Dropdown {
+    float x, y, w, h;
+    String[] options;
+    boolean open = false;
+    String selected = "";
+
+    Dropdown(float x, float y, float w, float h, String[] options) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.options = options;
+    }
+
+    void display() {
+        fill(255);
+        rect(x, y, w, h, 5);
+        fill(0);
+        textAlign(LEFT, CENTER);
+        textSize(16);
+        text(selected.equals("") ? "Choose option" : selected, x + 10, y + h / 2);
+        triangle(x + width - 20, y + 10, 
+             x + width - 10, y + 10,
+             x + width - 15, y + 20);
+        if (open) {
+            for (int i = 0; i < options.length; i++) {
+                fill(200);
+                rect(x, y + h * (i + 1), w, h);
+                fill(0);
+                text(options[i], x + 10, y + h * (i + 1) + h / 2);
+            }
+        }
+    }
+
+    void handleClick(float mx, float my) {
+        if (mx > x && mx < x + w && my > y && my < y + h) {
+            open = !open;
+        } else if (open) {
+            for (int i = 0; i < options.length; i++) {
+                float optionY = y + h * (i + 1);
+                if (mx > x && mx < x + w && my > optionY && my < optionY + h) {
+                    selected = options[i];
+                    open = false;
+                    break;
+                }
+            }
+        } else {
+            open = false;
+        }
+    }
+
+    String getSelected() {
+        return selected;
+    }
+} 
+class Flight {
+    // Fields to hold the flight details
+    String date;
+    String airlineCarrier;
+    String flightNumber;
+    String origin;
+    String originCity;
+    String originUnusedState;
+    String originState;
+    String originWAC;
+    String destination;
+    String destinationCity;
+    String destinationUnusedState;
+    String destinationState;
+    String destinationWAC;
+    int scheduledDeparture;
+    int actualDeparture;
+    int scheduledArrival;
+    int actualArrival;
+    int distance;
+    boolean cancelled;
+    boolean diverted;
+
+    // Constructor
+    public Flight(String date, String airlineCarrier, String flightNumber, String origin, 
+                String originCity, String originUnusedState, String originState, String originWAC, 
+                String destination, String destinationCity, String destinationUnusedState, 
+                String destinationState, String destinationWAC, int scheduledDeparture, 
+                int actualDeparture, int scheduledArrival, int actualArrival, 
+                boolean cancelled, boolean diverted, int distance) {
+        this.date = date;
+        this.airlineCarrier = airlineCarrier;
+        this.flightNumber = flightNumber;
+        this.origin = origin;
+        this.originCity = originCity;
+        this.originUnusedState = originUnusedState;
+        this.originState = originState;
+        this.originWAC = originWAC;
+        this.destination = destination;
+        this.destinationCity = destinationCity;
+        this.destinationUnusedState = destinationUnusedState;
+        this.destinationState = destinationState;
+        this.destinationWAC = destinationWAC;
+        this.scheduledDeparture = scheduledDeparture;
+        this.actualDeparture = actualDeparture;
+        this.scheduledArrival = scheduledArrival;
+        this.actualArrival = actualArrival;
+        this.distance = distance;
+        this.cancelled = cancelled;
+        this.diverted = diverted;
+    }
+    
+    // Calculate lateness in minutes
+    int getLateness() {
+        return actualArrival - scheduledArrival;
+    }
+    
+    // String representation of flight
+    String toString() {
+        return this.date + " | " + this.airlineCarrier + " | " + this.flightNumber + " | " + 
+               this.origin + " | " + this.originCity + " | " + this.originState + " | " + 
+               this.destination + " | " + this.destinationCity + " | " + this.destinationState + " | " + 
+               nf(this.scheduledDeparture, 4) + " | " + nf(this.actualDeparture, 4) + " | " + 
+               nf(this.scheduledArrival, 4) + " | " + nf(this.actualArrival, 4) + " | " + 
+               this.distance + " | " + (this.cancelled ? "Yes" : "No");
+    }
+}              
+class TextField {
+    float x, y, w, h;
+    String text = "";
+    boolean active = false;
+    String placeholder;
+
+    TextField(float x, float y, float w, float h, String placeholder) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.placeholder = placeholder;
+    }
+
+    void display() {
+        fill(active ? 255 : 200);
+        rect(x, y, w, h, 5);
+        
+        fill(0);
+        textSize(16);
+        textAlign(LEFT, CENTER);
+        if (text.equals("") && !active) {
+        fill(100);
+        text(placeholder, x + 5, y + h / 2);
+      } else {
+        fill(0);
+        text(text, x + 5, y + h / 2);
+      }
+    }
+
+    void handleClick(float mx, float my) {
+        active = (mx > x && mx < x + w && my > y && my < y + h);
+    }
+
+    void handleTyping(char k) {
+        if (active) {
+            if (k == BACKSPACE && text.length() > 0) {
+                text = text.substring(0, text.length() - 1);
+            } else if (k != CODED) {
+              text += k;
+            }
+        }
+    }
+
+    String getText() {
+        return text.trim();
+    }
+    
+    void clear() {
+    text = "";
+  }
+} 
+class SearchFlight {  
+    ArrayList<Flight> flights;
+    
+    SearchFlight(ArrayList<Flight> flights) {
+        this.flights = flights;
+    }
+    
+    ArrayList<Flight> searchByAirport(String airport) {  
+        ArrayList<Flight> result = new ArrayList<Flight>();
+        for(Flight flight : flights) {
+            if (flight.origin.equalsIgnoreCase(airport)) {
+                result.add(flight);
+            }
+        }
+        return result;
+    }
+
+    ArrayList<Flight> searchByDateRange(String startDate, String endDate) { 
+        ArrayList<Flight> result = new ArrayList<Flight>();
+        for (Flight flight : flights) {  
+            if (flight.date.compareTo(startDate) >= 0 && flight.date.compareTo(endDate) <= 0) {  
+                result.add(flight);  
+            }  
+        }  
+        // Sort by date in ascending order
+        Collections.sort(result, (f1, f2) -> f1.date.compareTo(f2.date));
+        return result;
+    }  
+    
+    ArrayList<Flight> searchByLateness() {  
+        ArrayList<Flight> sortedFlights = new ArrayList<Flight>(flights);  
+        sortedFlights.sort((f1, f2) -> Integer.compare(f2.getLateness(), f1.getLateness()));
+        return sortedFlights;
+    }
+
+    ArrayList<Flight> searchByState(String state) {
+        ArrayList<Flight> result = new ArrayList<Flight>();
+        for (Flight flight : flights) {
+            if (flight.originState.equalsIgnoreCase(state) || 
+                flight.destinationState.equalsIgnoreCase(state)) {
+                result.add(flight);
+            }
+        }
+        return result;
+    }
+
+    ArrayList<Flight> searchByAirline(String airline) {
+        ArrayList<Flight> result = new ArrayList<Flight>();
+        for (Flight flight : flights) {
+            if (flight.airlineCarrier.equalsIgnoreCase(airline)) {
+                result.add(flight);
+            }
+        }
+        return result;
+    }
+}
+final int CAPTION_TEXT = 50;
+final int BUTTON_TEXT = 23;
+int cloud1X, cloud2X, cloud3X, cloud4X, cloud5X, cloud6X;
+int planeX, planeY;
+PImage cloudImage, planeImage;
+PFont titleFont, headingFont, labelFont;
+Dropdown dropdown;
+Button nextButton, backButton, homeButton;
+String[] searchOptions = {"Airport", "Airline", "Date", "Lateness", "State"};
+String selectedOption = "";
+String currentSearchTerm = "";
+
+// Screens: 0 = main menu, 1 = input, 2 = results
+int screen = 0; 
+
+// Input components
+TextField inputAirportField, startDateField, endDateField, inputAirlineField, inputStateField;
+Button searchButton, resetButton, graphButton, tableButton;
+
+// Search data
+ArrayList<Flight> searchResults = new ArrayList<Flight>();
+SearchFlight searchFlight;
+boolean showGraph = false;
+boolean dateRangeSearch = false;
+boolean latenessSearch = false;
+boolean airlineSearch = false;
+boolean stateSearch = false;
+boolean airportSearch = false;
+int resultOffset = 0;
+
+void setup() {
+    size(1300, 800);
+    titleFont = createFont("Arial Bold", 50);
+    headingFont = createFont("Arial Bold", 24);
+    labelFont = createFont("Arial", 14);
+    textFont(titleFont);
+    cloudImage = loadImage("cloudImage.png");
+    planeImage = loadImage("planeImage.png");
+    
+    cloud1X = 95;
+    cloud2X = 25;
+    cloud3X = 230;
+    cloud4X = 400;
+    cloud5X = 498;
+    cloud6X = 570;
+    planeX = -120;
+    planeY = 140;
+    
+    // Initialize UI components
+    dropdown = new Dropdown(300, 200, 300, 40, searchOptions);
+    nextButton = new Button(650, 200, 200, 40, "Search");
+    backButton = new Button(20, 20, 80, 30, "Back");
+    homeButton = new Button(20, 20, 80, 30, "Home");
+    
+    inputAirportField = new TextField(300, 200, 300, 40, "Search Airport ... LAX");
+    inputAirlineField = new TextField(300, 200, 300, 40, "Search Airline ... AS");
+    inputStateField = new TextField(300, 200, 300, 40, "Search State ... NY");
+    startDateField = new TextField(300, 200, 140, 40, "MM/DD/YYYY");
+    endDateField = new TextField(460, 200, 140, 40, "MM/DD/YYYY");
+    
+    searchButton = new Button(300, 260, 120, 40, "Search");
+    resetButton = new Button(450, 260, 120, 40, "Reset");
+    graphButton = new Button(width - 160, height - 50, 120, 35, "Graph View");
+    tableButton = new Button(width - 300, height - 50, 120, 35, "Table View");
+    
+    // Initialize flight data
+    HashMap<String, Flight> flights = new FileDataReader().readFlights("flights2k(1).csv");
+    searchFlight = new SearchFlight(new ArrayList<Flight>(flights.values()));
+}
+
+void draw() {
+    background(#87CEEB);
+    drawClouds();
+    drawPlane();
+    
+    fill(255);
+    noStroke();
+    rect(0, 0, width, 75);
+    
+    fill(0); // Darker text color
+    textFont(titleFont);
+    textAlign(CENTER, CENTER);
+    textSize(50);
+    text("Flight Search", width/2, 40);
+    
+    if (screen == 2 && !showGraph) {
+        fill(255);
+        rect(0, 75, width, 40);
+        fill(0); // Darker text color
+        textFont(headingFont);
+        textSize(24);
+        text("Currently viewing: " + selectedOption + " search results", width/2, 95);
+    }
+    
+    textAlign(CENTER, CENTER);
+    textSize(26);
+    fill(0); // Darker text color
+
+    switch(screen) {
+        case 0: // Main menu
+            textFont(headingFont);
+            textSize(35);
+            text("FLIGHTS", width / 2, 120);
+            dropdown.display();
+            nextButton.display();
+            break;
+            
+        case 1: // Input screen
+            backButton.display();
+            textFont(headingFont);
+            if (airportSearch) {
+                text("AIRPORT", width/2, 120);
+                inputAirportField.x = width/2 - 150;
+                inputAirportField.display();
+            } else if (airlineSearch) {
+                text("AIRLINE", width/2, 120);
+                inputAirlineField.x = width/2 - 150;
+                inputAirlineField.display();
+            } else if (dateRangeSearch) {
+                text("DATE RANGE", width/2, 120);
+                textFont(labelFont);
+                text("Start Date", width/2 - 150, 180);
+                
+                startDateField.x = width/2 - 150;
+                startDateField.display();
+                text("End Date", width/2 + 50, 180);
+                
+                endDateField.x = width/2 + 50;
+                endDateField.display();
+            } else if (stateSearch) {
+                text("STATE", width/2, 120);
+                inputStateField.x = width/2 - 150;
+                inputStateField.display();
+            } else if (latenessSearch) {
+                // No additional input needed for lateness search
+                text("LATENESS", width/2, 120);
+                textFont(labelFont);
+                text("Showing all delayed flights", width/2, 160);
+            }
+            searchButton.x = width/2 - 130;
+            resetButton.x = width/2 + 10;
+            searchButton.display();
+            resetButton.display();
+            break;
+            
+        case 2: // Results screen
+            backButton.display();
+            if (searchResults.isEmpty()) {
+                textAlign(CENTER);
+                textFont(headingFont);
+                textSize(20);
+                text("No matching flights found...", width/2, 150);
+            } else {
+                if (showGraph && !latenessSearch) {  // Don't show graph for lateness search
+                    displayGraphView();
+                } else {
+                    displayTableView();
+                }
+            }
+            break;
+    }
+}
+
+void drawClouds() {
+    image(cloudImage, cloud1X, 100, 100, 50);
+    if (cloud1X-- == -100) cloud1X = width + 100;
+    image(cloudImage, cloud2X, 200, 100, 50);
+    if (cloud2X-- == -100) cloud2X = width + 100;
+    image(cloudImage, cloud3X, 280, 100, 50);
+    if (cloud3X-- == -100) cloud3X = width + 100;
+    image(cloudImage, cloud4X, 330, 100, 50);
+    if (cloud4X-- == -100) cloud4X = width + 100;
+    image(cloudImage, cloud5X, 130, 100, 50);
+    if (cloud5X-- == -100) cloud5X = width + 100;
+    image(cloudImage, cloud6X, 225, 100, 50);
+    if (cloud6X-- == -100) cloud6X = width + 100;
+}
+
+void drawPlane() {
+    image(planeImage, planeX, planeY, 120, 55);
+    if (planeX++ == width + 120) {
+        planeX = -120;
+        planeY = (int)random(100, height - 100);
+    }
+}
+
+void mousePressed() {
+  if (screen == 0) { // Main menu
+    dropdown.handleClick(mouseX, mouseY);
+    if (nextButton.isClicked(mouseX, mouseY) && !dropdown.getSelected().equals("")) {
+      selectedOption = dropdown.getSelected();
+      dateRangeSearch = selectedOption.equals("Date");
+      latenessSearch = selectedOption.equals("Lateness");
+      airlineSearch = selectedOption.equals("Airline");
+      stateSearch = selectedOption.equals("State");
+      airportSearch = selectedOption.equals("Airport");
+      screen = 1;
+    }
+  } else if (screen == 1) { // Input screen
+    if (dateRangeSearch) {
+      startDateField.handleClick(mouseX, mouseY);
+      endDateField.handleClick(mouseX, mouseY);
+    } else if (airlineSearch) {
+      inputAirlineField.handleClick(mouseX, mouseY);
+    } else if (stateSearch) {
+      inputStateField.handleClick(mouseX, mouseY);
+    } else if (airportSearch) {
+      inputAirportField.handleClick(mouseX, mouseY);
+    }
+    
+    if (searchButton.isClicked(mouseX, mouseY)) {
+      performSearch();
+      screen = 2;
+    } else if (resetButton.isClicked(mouseX, mouseY)) {
+      if (dateRangeSearch) {
+        startDateField.clear();
+        endDateField.clear();
+      } else if (airlineSearch) {
+        inputAirlineField.clear();
+      } else if (stateSearch) {
+        inputStateField.clear();
+      } else if (airportSearch) {
+        inputAirportField.clear();
+      }
+    } else if (backButton.isClicked(mouseX, mouseY)) {
+      screen = 0;
+    }
+  } else if (screen == 2) { // Results screen
+    if (homeButton.isClicked(mouseX, mouseY)) {
+      screen = 0;
+      showGraph = false;
+    } else if (graphButton.isClicked(mouseX, mouseY)) {
+      showGraph = true;
+    } else if (tableButton.isClicked(mouseX, mouseY)) {
+      showGraph = false;
+    }
+  }
+}
+
+void mouseMoved() {
+  if (screen == 0) {
+    nextButton.checkHover(mouseX, mouseY);
+  } else if (screen == 1) {
+    searchButton.checkHover(mouseX, mouseY);
+    resetButton.checkHover(mouseX, mouseY);
+    backButton.checkHover(mouseX, mouseY);
+  } else if (screen == 2) {
+    homeButton.checkHover(mouseX, mouseY);
+    graphButton.checkHover(mouseX, mouseY);
+    tableButton.checkHover(mouseX, mouseY);
+  }
+}
+
+void keyPressed() {
+  if (screen == 1) {
+    if (dateRangeSearch) {
+      startDateField.handleTyping(key);
+      endDateField.handleTyping(key);
+    } else if (airlineSearch) {
+      inputAirlineField.handleTyping(key);
+    } else if (stateSearch) {
+      inputStateField.handleTyping(key);
+    } else if (airportSearch) {
+      inputAirportField.handleTyping(key);
+    }
+  } else if (screen == 2) {
+    if (keyCode == UP) {
+      resultOffset = max(0, resultOffset - 1);
+    } else if (keyCode == DOWN) {
+      resultOffset = min(searchResults.size() - 10, resultOffset + 1);
+    }
+  }
+}
+
+void performSearch() {
+  searchResults.clear();
+  resultOffset = 0;
+  
+  if (selectedOption.equals("Airport")) {
+      currentSearchTerm = inputAirportField.getText().toUpperCase();
+      searchResults = searchFlight.searchByAirport(currentSearchTerm);
+  } else if (selectedOption.equals("Airline")) {
+      currentSearchTerm = inputAirlineField.getText().toUpperCase();
+      searchResults = searchFlight.searchByAirline(currentSearchTerm);
+  } else if (selectedOption.equals("Date")) {
+      searchResults = searchFlight.searchByDateRange(startDateField.getText(), endDateField.getText());
+  } else if (selectedOption.equals("Lateness")) {
+      searchResults = searchFlight.searchByLateness();
+      showGraph = false; // Force table view for lateness results
+  } else if (selectedOption.equals("State")) {
+      currentSearchTerm = inputStateField.getText().trim();
+      if (!currentSearchTerm.isEmpty()) {
+          searchResults = searchFlight.searchByState(currentSearchTerm);
+      }
+  }
+}
+
+void displayTableView() {
+  background(230, 240, 255); // Light background
+  
+  // Header
+  fill(70, 130, 180);
+  rect(50, 100, width-100, 40, 5);
+  fill(255);
+  textFont(labelFont);
+  textSize(14);
+  textAlign(LEFT, CENTER);
+  
+  // Column headers
+  text("Date", 60, 120);
+  text("Airline", 150, 120);
+  text("Flight#", 200, 120);
+  text("Origin", 260, 120);
+  text("Origin \n City", 320, 120);
+  text("Origin \n State", 390, 120);
+  text("Destination", 440, 120);
+  text("Destination \n City", 520, 120);
+  text("Destination \n State", 620, 120);
+  text("Scheduled \n Depature", 700, 120);
+  text("Actual \n Depature", 780, 120);
+  text("Scheduled \n Arrival", 860, 120);
+  text("Actual \n Arrival", 940, 120);
+  text("Lateness", 1020, 120);
+  text("Distance", 1100, 120);
+  text("Cancelled", 1180, 120);
+  
+  // Table rows
+  int startRow = resultOffset;
+  int endRow = min(startRow + 20, searchResults.size());
+  
+  for (int i = startRow; i < endRow; i++) {
+    Flight f = searchResults.get(i);
+    int y = 150 + (i - startRow) * 30;
+    
+    // Alternate row colors
+    fill((i % 2 == 0) ? color(240, 248, 255) : color(225, 235, 245));
+    rect(50, y, width-100, 30);
+    
+    // Flight data
+    fill(0);
+    textSize(10);
+    text(f.date, 60, y + 15);
+    text(f.airlineCarrier, 160, y + 15);
+    text(f.flightNumber, 220, y + 15);
+    text(f.origin, 260, y + 15);
+    text(f.originCity, 320, y + 15);
+    text(f.originState, 400, y + 15);
+    text(f.destination, 460, y + 15);
+    text(f.destinationCity, 510, y + 15);
+    text(f.destinationState, 660, y + 15);
+    text(nf(f.scheduledDeparture, 4), 710, y + 15);
+    text(nf(f.actualDeparture, 4), 790, y + 15);
+    text(nf(f.scheduledArrival, 4), 870, y + 15);
+    text(nf(f.actualArrival, 4), 950, y + 15);
+    text(f.getLateness() + "m", 1030, y + 15);
+    text(f.distance + "mi", 1110, y + 15);
+    text(f.cancelled ? "Yes" : "No", 1190, y + 15);
+  }
+  
+  // Navigation info
+  fill(0);
+  textSize(12);
+  text("Showing " + (startRow+1) + " to " + endRow + " of " + searchResults.size() + " flights", 600, height-40);
+  text("Use UP/DOWN arrows to scroll", 600, height-20);
+  
+  // View toggle buttons
+  graphButton.display();
+  tableButton.display();
+  backButton.display();
+}
+
+void displayGraphView() {
+  background(40, 60, 100);
+  fill(255);
+  textFont(headingFont);
+  textSize(24);
+  textAlign(CENTER);
+  
+  if (airportSearch) {
+    displayAirportGraph();
+  } else if (stateSearch) {
+    displayStateGraph();
+  } else if (airlineSearch) {
+    displayAirlineGraph();
+  }
+  
+  tableButton.display();
+}
+
+void displayAirportGraph() {
+  text("Flights from " + currentSearchTerm, width/2, 60);
+  
+  HashMap<String, Integer> destinationCounts = new HashMap<String, Integer>();
+  for (Flight f : searchResults) {
+    String dest = f.destination;
+    destinationCounts.put(dest, destinationCounts.getOrDefault(dest, 0) + 1);
+  }
+  
+  drawBarChart(destinationCounts, "Top Destinations from " + currentSearchTerm, "Destination", "Number \n of \n Flights", color(100, 200, 255));
+}
+
+void displayStateGraph() {
+  text("Flights from/to " + currentSearchTerm, width/2, 60);
+  
+  HashMap<String, Integer> airlineCounts = new HashMap<String, Integer>();
+  for (Flight f : searchResults) {
+    String airline = f.airlineCarrier;
+    airlineCounts.put(airline, airlineCounts.getOrDefault(airline, 0) + 1);
+  }
+  
+  drawBarChart(airlineCounts, "Airlines Serving " + currentSearchTerm, "Airline", "Number \n of \n Flights", color(255, 150, 100));
+}
+
+void displayAirlineGraph() {
+  text("Flights for " + currentSearchTerm, width/2, 60);
+  
+  HashMap<String, Integer> routeCounts = new HashMap<String, Integer>();
+  for (Flight f : searchResults) {
+    String route = f.origin + "-" + f.destination;
+    routeCounts.put(route, routeCounts.getOrDefault(route, 0) + 1);
+  }
+  
+  drawBarChart(routeCounts, "Popular Routes for " + currentSearchTerm, "Route", "Number \n of \n Flights", color(150, 255, 150));
+}
+
+void drawBarChart(HashMap<String, Integer> data, String title, String xLabel, String yLabel, color barColor) {
+  // Sort data by value (descending)
+  ArrayList<HashMap.Entry<String, Integer>> sortedEntries = new ArrayList<>(data.entrySet());
+  sortedEntries.sort((a, b) -> b.getValue().compareTo(a.getValue()));
+  
+  // Get top 10 entries
+  int numBars = min(10, sortedEntries.size());
+  String[] labels = new String[numBars];
+  int[] values = new int[numBars];
+  
+  for (int i = 0; i < numBars; i++) {
+    labels[i] = sortedEntries.get(i).getKey();
+    values[i] = sortedEntries.get(i).getValue();
+  }
+  
+  // Chart dimensions
+  int margin = 100;
+  int chartWidth = width - 2 * margin;
+  int chartHeight = 400;
+  int barWidth = chartWidth / (numBars + 2);
+  int baseY = height - 100;
+  
+  // Find max value for scaling
+  int maxValue = Collections.max(data.values());
+  
+  // Draw title
+  fill(255);
+  textFont(headingFont);
+  textSize(20);
+  text(title, width/2, 90);
+  
+  // Draw axes
+  stroke(255);
+  line(margin, baseY, margin + chartWidth, baseY); // X-axis
+  line(margin, baseY, margin, baseY - chartHeight); // Y-axis
+  
+  // Draw axis labels
+  fill(255);
+  textFont(labelFont);
+  textAlign(CENTER);
+  text(xLabel, width/2, baseY + 40);
+  textAlign(RIGHT, CENTER);
+  text(yLabel, margin - 10, baseY - chartHeight/2);
+  
+  // Draw Y-axis ticks
+  for (int i = 0; i <= 5; i++) {
+    int value = (int)map(i, 0, 5, 0, maxValue);
+    float y = baseY - map(i, 0, 5, 0, chartHeight);
+    textAlign(RIGHT, CENTER);
+    text(value, margin - 10, y);
+    stroke(255, 100);
+    line(margin, y, margin + chartWidth, y);
+  }
+  
+  // Draw bars
+  for (int i = 0; i < numBars; i++) {
+    float x = margin + (i + 1) * barWidth;
+    float barHeight = map(values[i], 0, maxValue, 0, chartHeight);
+    
+    fill(barColor);
+    rect(x, baseY - barHeight, barWidth * 0.8, barHeight);
+    
+    // Draw value on top of bar
+    fill(255);
+    textAlign(CENTER);
+    text(values[i], x + barWidth * 0.4, baseY - barHeight - 10);
+    
+    // Draw label below bar
+    textSize(10);
+    text(labels[i], x + barWidth * 0.4, baseY + 15);
+  }
+}
+
+int countCancelled() {
+  int count = 0;
+  for (Flight f : searchResults) {
+    if (f.cancelled) count++;
+  }
+  return count;
+}
+
+float avgDelay() {
+  float total = 0;
+  int count = 0;
+  for (Flight f : searchResults) {
+    if (!f.cancelled) {
+      total += f.getLateness();
+      count++;
+    }
+  }
+  return count > 0 ? total/count : 0;
+}
