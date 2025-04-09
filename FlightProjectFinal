@@ -317,7 +317,8 @@ class SearchFlight {
 }
 final int CAPTION_TEXT = 50;
 final int BUTTON_TEXT = 23;
-int cloud1X, cloud2X, cloud3X, cloud4X, cloud5X, cloud6X;
+int numClouds = 12; // Increased number of clouds
+Cloud[] clouds = new Cloud[numClouds];
 int planeX, planeY;
 PImage cloudImage, planeImage;
 PFont titleFont, headingFont, labelFont;
@@ -353,16 +354,11 @@ void setup() {
     textFont(titleFont);
     cloudImage = loadImage("cloudImage.png");
     planeImage = loadImage("planeImage.png");
-    
-    cloud1X = 95;
-    cloud2X = 25;
-    cloud3X = 230;
-    cloud4X = 400;
-    cloud5X = 498;
-    cloud6X = 570;
+    setupClouds();
     planeX = -120;
     planeY = 140;
-    
+ 
+
     // Initialize UI components
     dropdown = new Dropdown(300, 200, 300, 40, searchOptions);
     nextButton = new Button(650, 200, 200, 40, "Search");
@@ -479,20 +475,17 @@ void draw() {
 }
 
 void drawClouds() {
-    image(cloudImage, cloud1X, 100, 100, 50);
-    if (cloud1X-- == -100) cloud1X = width + 100;
-    image(cloudImage, cloud2X, 200, 100, 50);
-    if (cloud2X-- == -100) cloud2X = width + 100;
-    image(cloudImage, cloud3X, 280, 100, 50);
-    if (cloud3X-- == -100) cloud3X = width + 100;
-    image(cloudImage, cloud4X, 330, 100, 50);
-    if (cloud4X-- == -100) cloud4X = width + 100;
-    image(cloudImage, cloud5X, 130, 100, 50);
-    if (cloud5X-- == -100) cloud5X = width + 100;
-    image(cloudImage, cloud6X, 225, 100, 50);
-    if (cloud6X-- == -100) cloud6X = width + 100;
+   for (Cloud c : clouds) {
+    c.update();
+    c.display();
+  }
 }
 
+void setupClouds(){
+   for (int i = 0; i < numClouds; i++) {
+    clouds[i] = new Cloud(random(width), random(50, height/2),  random(0.5, 2), random(80, 150) );
+  }
+}
 void drawPlane() {
     image(planeImage, planeX, planeY, 120, 55);
     if (planeX++ == width + 120) {
