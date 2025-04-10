@@ -2,24 +2,22 @@ import java.util.Collections;
 import java.util.Comparator;
 class FileDataReader {
        HashMap<String, Flight> readFlights(String fileName) {
-         HashMap<String, Flight> flights = new HashMap<>();
+         HashMap<String, Flight> flights = new HashMap<>();        //store flights in Hashmap
  
-         // Load all lines from the file
          String[] lines = loadStrings(fileName);
-         
-        // Limit to print first 100 lines
-             
+        
+           // error handling  
           if (lines == null)
            {
              println("Error loading file: " + fileName);
              return flights;
            }
            
-          
+          //sort through lines
          for (int rowNumber = 1; rowNumber < lines.length ; rowNumber++) {
              String[] row = lines[rowNumber].split(",");
  
-             // Assign CSV values to variables (handling missing values)
+             // Assign CSV values to variables (handling missing values) 
              String date = row[0].isEmpty() ? "Unknown" : row[0];  
              String airlineCarrier = row[1].isEmpty() ? "Unknown" : row[1];  
              String flightNumber = row[2].isEmpty() ? "Unknown" : row[2];  
@@ -56,10 +54,12 @@ class FileDataReader {
      }
  }                    
 class Button {
+  // variables for buttons
     float x, y, w, h;
     String label;
     boolean hover = false;
     
+    //constructor
     Button(float x, float y, float w, float h, String label) {
         this.x = x;
         this.y = y;
@@ -68,6 +68,7 @@ class Button {
         this.label = label;
     }
     
+    // function that draws the button
     void display() {
         fill(hover ? color(100, 150, 255) : color(70, 130, 180));
         rect(x, y, w, h, 5);
@@ -77,20 +78,24 @@ class Button {
         text(label, x + w/2, y + h/2);
     }
     
+    // function to check if button is clicked
     boolean isClicked(float mx, float my) {
         return mx > x && mx < x + w && my > y && my < y + h;
     }
     
+    // functio that checks if cursor is over button 
     void checkHover(float mx, float my) {
         hover = isClicked(mx, my);
     }
 }  
 class Dropdown {
+  // variables
     float x, y, w, h;
     String[] options;
     boolean open = false;
     String selected = "";
 
+// constructor
     Dropdown(float x, float y, float w, float h, String[] options) {
         this.x = x;
         this.y = y;
@@ -99,6 +104,7 @@ class Dropdown {
         this.options = options;
     }
 
+// function to draw the dropdown button
     void display() {
         fill(255);
         rect(x, y, w, h, 5);
@@ -119,6 +125,7 @@ class Dropdown {
         }
     }
 
+// function to check of dropdown is clicked
     void handleClick(float mx, float my) {
         if (mx > x && mx < x + w && my > y && my < y + h) {
             open = !open;
@@ -136,10 +143,11 @@ class Dropdown {
         }
     }
 
+// get function to get selected option
     String getSelected() {
         return selected;
     }
-}          
+}        
 class Flight {
     // Fields to hold the flight details
     String date;
@@ -170,6 +178,8 @@ class Flight {
                 String destinationState, String destinationWAC, int scheduledDeparture, 
                 int actualDeparture, int scheduledArrival, int actualArrival, 
                 boolean cancelled, boolean diverted, int distance) {
+                  
+         //assigning values          
         this.date = date;
         this.airlineCarrier = airlineCarrier;
         this.flightNumber = flightNumber;
@@ -208,11 +218,13 @@ class Flight {
     }
 }              
 class TextField {
+  // variables
     float x, y, w, h;
     String text = "";
     boolean active = false;
     String placeholder;
 
+// constructor 
     TextField(float x, float y, float w, float h, String placeholder) {
         this.x = x;
         this.y = y;
@@ -221,6 +233,7 @@ class TextField {
         this.placeholder = placeholder;
     }
 
+// function that draws the textfield
     void display() {
         fill(active ? 255 : 200);
         rect(x, y, w, h, 5);
@@ -237,10 +250,12 @@ class TextField {
       }
     }
 
+// this function is for when the user clicks the textfield
     void handleClick(float mx, float my) {
         active = (mx > x && mx < x + w && my > y && my < y + h);
     }
 
+// this function is for handling the users input that is typed
     void handleTyping(char k) {
         if (active) {
             if (k == BACKSPACE && text.length() > 0) {
@@ -259,8 +274,10 @@ class TextField {
     text = "";
   }
 } 
+  // Front end code for graphics
+
 class Cloud {
-  float x, y;
+  float x, y;  // x and y co-ordinates of cloud grahics
   float speed;
   float size;
   PImage img;
@@ -287,51 +304,118 @@ class Cloud {
     image(img, x, y, size, size/2);
   }
 }
+class SearchFlight {  
+    ArrayList<Flight> flights;    // imports the flight array form the class Flight
+    
+    //Constructor
+    SearchFlight(ArrayList<Flight> flights) {
+        this.flights = flights;
+    }
+    
+// this function takes care of search by Airport origin
+    ArrayList<Flight> searchByAirport(String airport) {  
+        ArrayList<Flight> result = new ArrayList<Flight>();
+        for(Flight flight : flights) {
+            if (flight.origin.equalsIgnoreCase(airport)) {
+                result.add(flight);
+            }
+        }
+        return result;
+    }
+
+//this function takes care of search by Start Date and End Date 
+    ArrayList<Flight> searchByDateRange(String startDate, String endDate) { 
+        ArrayList<Flight> result = new ArrayList<Flight>();
+        for (Flight flight : flights) {  
+            if (flight.date.compareTo(startDate) >= 0 && flight.date.compareTo(endDate) <= 0) {  
+                result.add(flight);  
+            }  
+        }  
+        // Sort by date in ascending order
+        Collections.sort(result, (f1, f2) -> f1.date.compareTo(f2.date));
+        return result;
+    }  
+    
+// this function takes care of search by Lateness
+    ArrayList<Flight> searchByLateness() {  
+        ArrayList<Flight> sortedFlights = new ArrayList<Flight>(flights);  
+        sortedFlights.sort((f1, f2) -> Integer.compare(f2.getLateness(), f1.getLateness()));
+        return sortedFlights;
+    }
+
+// this function takes care of search by state
+    ArrayList<Flight> searchByState(String state) {
+        ArrayList<Flight> result = new ArrayList<Flight>();
+        for (Flight flight : flights) {
+            if (flight.originState.equalsIgnoreCase(state) || 
+                flight.destinationState.equalsIgnoreCase(state)) {
+                result.add(flight);
+            }
+        }
+        return result;
+    }
+
+// this function takes care of search by Airline
+    ArrayList<Flight> searchByAirline(String airline) {
+        ArrayList<Flight> result = new ArrayList<Flight>();
+        for (Flight flight : flights) {
+            if (flight.airlineCarrier.equalsIgnoreCase(airline)) {
+                result.add(flight);
+            }
+        }
+        return result;
+    }
+}
+// UI class
+//variables 
 final int CAPTION_TEXT = 50;
 final int BUTTON_TEXT = 23;
-int numClouds = 12; // Increased number of clouds
+int screen = 0;    // Screens: 0 = main menu, 1 = input, 2 = results
+int numClouds = 12; // Increased number of clouds to compensate for larger screen
 Cloud[] clouds = new Cloud[numClouds];
-int planeX, planeY;
+String[] searchOptions = {"Airport", "Airline", "Date", "Lateness", "State"};
+String selectedOption = "";       // stores the selected option from the dropdown
+String currentSearchTerm = "";    // variable to store the current search
+int planeX, planeY; // x and y co-ordinates of plane graphic
+int resultOffset = 0; // variable to set off result
+
+// creating the object
 PImage cloudImage, planeImage;
 PFont titleFont, headingFont, labelFont;
 Dropdown dropdown;
 Button nextButton, backButton, homeButton;
-String[] searchOptions = {"Airport", "Airline", "Date", "Lateness", "State"};
-String selectedOption = "";
-String currentSearchTerm = "";
-
-// Screens: 0 = main menu, 1 = input, 2 = results
-int screen = 0; 
-
-// Input components
 TextField inputAirportField, startDateField, endDateField, inputAirlineField, inputStateField;
 Button searchButton, resetButton, graphButton, tableButton;
-
-// Search data
 ArrayList<Flight> searchResults = new ArrayList<Flight>();
 SearchFlight searchFlight;
+
+// booleans to for the search
 boolean showGraph = false;
 boolean dateRangeSearch = false;
 boolean latenessSearch = false;
 boolean airlineSearch = false;
 boolean stateSearch = false;
 boolean airportSearch = false;
-int resultOffset = 0;
 
+// setup function
 void setup() {
-    size(1300, 800);
+    size(1300, 800);    // size of screen
+    
+    // the fonts used
     titleFont = createFont("Arial Bold", 50);
     headingFont = createFont("Arial Bold", 24);
     labelFont = createFont("Arial", 14);
     textFont(titleFont);
+    
+    // loads cloud and plane image
     cloudImage = loadImage("cloudImage.png");
     planeImage = loadImage("planeImage.png");
-    setupClouds();
-    planeX = -120;
-    planeY = 140;
+    
+    setupClouds();      // calls the function to set up the clouds from
+    planeX = -120;      // the starting x-cordinate of the plane
+    planeY = 140;       // the starting y-coordinate of the plane
  
-
-    // Initialize UI components
+// Initialize UI components 
     dropdown = new Dropdown(300, 200, 300, 40, searchOptions);
     nextButton = new Button(650, 200, 200, 40, "Search");
     backButton = new Button(20, 20, 80, 30, "Back");
@@ -353,21 +437,21 @@ void setup() {
     searchFlight = new SearchFlight(new ArrayList<Flight>(flights.values()));
 }
 
+// the function that draws the screens and objects 
 void draw() {
-    background(#87CEEB);
-    drawClouds();
-    drawPlane();
+    background(#87CEEB);      // screen colour
+    drawClouds();             // calls the function for drawing the clouds
+    drawPlane();              // calls the function for calling the planes
     
+    // takes care of the colours 
     fill(255);
     noStroke();
     rect(0, 0, width, 75);
-    
     fill(0); // Darker text color
     textFont(titleFont);
     textAlign(CENTER, CENTER);
     textSize(50);
     text("Flight Search", width/2, 40);
-    
     if (screen == 2 && !showGraph) {
         fill(255);
         rect(0, 75, width, 40);
@@ -377,10 +461,13 @@ void draw() {
         text("Currently viewing: " + selectedOption + " search results", width/2, 95);
     }
     
+    // text alignment and colour
     textAlign(CENTER, CENTER);
     textSize(26);
     fill(0); // Darker text color
 
+// this is the switch condition 
+// for each screen (or case), it draws what should be shown on each screen
     switch(screen) {
         case 0: // Main menu
             textFont(headingFont);
@@ -445,7 +532,7 @@ void draw() {
             break;
     }
 }
-
+  // Function for drawing cloud graphics
 void drawClouds() {
    for (Cloud c : clouds) {
     c.update();
@@ -453,11 +540,14 @@ void drawClouds() {
   }
 }
 
+// function for setting up clouds
 void setupClouds(){
    for (int i = 0; i < numClouds; i++) {
     clouds[i] = new Cloud(random(width), random(50, height/2),  random(0.5, 2), random(80, 150) );
   }
 }
+
+// Function for drawing plane graphics
 void drawPlane() {
     image(planeImage, planeX, planeY, 120, 55);
     if (planeX++ == width + 120) {
@@ -466,6 +556,7 @@ void drawPlane() {
     }
 }
 
+// function for when mouse pressed
 void mousePressed() {
   if (screen == 0) { // Main menu
     dropdown.handleClick(mouseX, mouseY);
@@ -519,6 +610,7 @@ void mousePressed() {
   }
 }
 
+// function for when mouse is over an object
 void mouseMoved() {
   if (screen == 0) {
     nextButton.checkHover(mouseX, mouseY);
@@ -533,6 +625,7 @@ void mouseMoved() {
   }
 }
 
+// function the key pressed
 void keyPressed() {
   if (screen == 1) {
     if (dateRangeSearch) {
@@ -554,6 +647,7 @@ void keyPressed() {
   }
 }
 
+// function for ensuring the search options align with the search function in search function class
 void performSearch() {
   searchResults.clear();
   resultOffset = 0;
@@ -577,10 +671,11 @@ void performSearch() {
   }
 }
 
+// this function displays the data in a tabular format
 void displayTableView() {
   background(230, 240, 255); // Light background
   
-  // Header
+// Header
   fill(70, 130, 180);
   rect(50, 100, width-100, 40, 5);
   fill(255);
@@ -588,7 +683,7 @@ void displayTableView() {
   textSize(14);
   textAlign(LEFT, CENTER);
   
-  // Column headers
+// Column headers
   text("Date", 60, 120);
   text("Airline", 150, 120);
   text("Flight#", 200, 120);
@@ -606,7 +701,7 @@ void displayTableView() {
   text("Distance", 1100, 120);
   text("Cancelled", 1180, 120);
   
-  // Table rows
+// Table rows
   int startRow = resultOffset;
   int endRow = min(startRow + 20, searchResults.size());
   
@@ -614,11 +709,11 @@ void displayTableView() {
     Flight f = searchResults.get(i);
     int y = 150 + (i - startRow) * 30;
     
-    // Alternate row colors
+// Alternate row colors
     fill((i % 2 == 0) ? color(240, 248, 255) : color(225, 235, 245));
     rect(50, y, width-100, 30);
     
-    // Flight data
+// Flight data
     fill(0);
     textSize(10);
     text(f.date, 60, y + 15);
@@ -639,18 +734,19 @@ void displayTableView() {
     text(f.cancelled ? "Yes" : "No", 1190, y + 15);
   }
   
-  // Navigation info
+// Navigation info
   fill(0);
   textSize(12);
   text("Showing " + (startRow+1) + " to " + endRow + " of " + searchResults.size() + " flights", 600, height-40);
   text("Use UP/DOWN arrows to scroll", 600, height-20);
   
-  // View toggle buttons
+// View toggle buttons
   graphButton.display();
   tableButton.display();
   backButton.display();
 }
 
+// this function displays the graph 
 void displayGraphView() {
   background(40, 60, 100);
   fill(255);
@@ -669,6 +765,7 @@ void displayGraphView() {
   tableButton.display();
 }
 
+// this function displays the graph for airport
 void displayAirportGraph() {
   text("Flights from " + currentSearchTerm, width/2, 60);
   
@@ -681,6 +778,7 @@ void displayAirportGraph() {
   drawBarChart(destinationCounts, "Top Destinations from " + currentSearchTerm, "Destination", "Number \n of \n Flights", color(100, 200, 255));
 }
 
+// this function displays the graph for state
 void displayStateGraph() {
   text("Flights from/to " + currentSearchTerm, width/2, 60);
   
@@ -693,6 +791,7 @@ void displayStateGraph() {
   drawBarChart(airlineCounts, "Airlines Serving " + currentSearchTerm, "Airline", "Number \n of \n Flights", color(255, 150, 100));
 }
 
+// this function displays the graph for airline
 void displayAirlineGraph() {
   text("Flights for " + currentSearchTerm, width/2, 60);
   
@@ -705,6 +804,7 @@ void displayAirlineGraph() {
   drawBarChart(routeCounts, "Popular Routes for " + currentSearchTerm, "Route", "Number \n of \n Flights", color(150, 255, 150));
 }
 
+// function to draw the bar chart 
 void drawBarChart(HashMap<String, Integer> data, String title, String xLabel, String yLabel, color barColor) {
   // Sort data by value (descending)
   ArrayList<HashMap.Entry<String, Integer>> sortedEntries = new ArrayList<>(data.entrySet());
@@ -778,6 +878,7 @@ void drawBarChart(HashMap<String, Integer> data, String title, String xLabel, St
   }
 }
 
+// this function returns the number of cancelled flights in a collection
 int countCancelled() {
   int count = 0;
   for (Flight f : searchResults) {
@@ -786,6 +887,7 @@ int countCancelled() {
   return count;
 }
 
+// this function calculates and returns the average delay of non-cancelled flights
 float avgDelay() {
   float total = 0;
   int count = 0;
@@ -796,60 +898,4 @@ float avgDelay() {
     }
   }
   return count > 0 ? total/count : 0;
-}
-class SearchFlight {  
-    ArrayList<Flight> flights;
-    
-    SearchFlight(ArrayList<Flight> flights) {
-        this.flights = flights;
-    }
-    
-    ArrayList<Flight> searchByAirport(String airport) {  
-        ArrayList<Flight> result = new ArrayList<Flight>();
-        for(Flight flight : flights) {
-            if (flight.origin.equalsIgnoreCase(airport)) {
-                result.add(flight);
-            }
-        }
-        return result;
-    }
-
-    ArrayList<Flight> searchByDateRange(String startDate, String endDate) { 
-        ArrayList<Flight> result = new ArrayList<Flight>();
-        for (Flight flight : flights) {  
-            if (flight.date.compareTo(startDate) >= 0 && flight.date.compareTo(endDate) <= 0) {  
-                result.add(flight);  
-            }  
-        }  
-        // Sort by date in ascending order
-        Collections.sort(result, (f1, f2) -> f1.date.compareTo(f2.date));
-        return result;
-    }  
-    
-    ArrayList<Flight> searchByLateness() {  
-        ArrayList<Flight> sortedFlights = new ArrayList<Flight>(flights);  
-        sortedFlights.sort((f1, f2) -> Integer.compare(f2.getLateness(), f1.getLateness()));
-        return sortedFlights;
-    }
-
-    ArrayList<Flight> searchByState(String state) {
-        ArrayList<Flight> result = new ArrayList<Flight>();
-        for (Flight flight : flights) {
-            if (flight.originState.equalsIgnoreCase(state) || 
-                flight.destinationState.equalsIgnoreCase(state)) {
-                result.add(flight);
-            }
-        }
-        return result;
-    }
-
-    ArrayList<Flight> searchByAirline(String airline) {
-        ArrayList<Flight> result = new ArrayList<Flight>();
-        for (Flight flight : flights) {
-            if (flight.airlineCarrier.equalsIgnoreCase(airline)) {
-                result.add(flight);
-            }
-        }
-        return result;
-    }
 }
